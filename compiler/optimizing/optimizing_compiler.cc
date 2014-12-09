@@ -71,6 +71,17 @@ OptimizingCompiler::OptimizingCompiler(CompilerDriver* driver) : QuickCompiler(d
   }
 }
 
+// The stack map we generate must be 4-byte aligned on ARM. Since existing
+// maps are generated alongside these stack maps, we must also align them.
+static std::vector<uint8_t>& AlignVectorSize(std::vector<uint8_t>& vector) {
+  size_t size = vector.size();
+  size_t aligned_size = RoundUp(size, 4);
+  for (; size < aligned_size; ++size) {
+    vector.push_back(0);
+  }
+  return vector;
+}
+
 CompiledMethod* OptimizingCompiler::TryCompile(const DexFile::CodeItem* code_item,
                                                uint32_t access_flags,
                                                InvokeType invoke_type,
@@ -160,8 +171,6 @@ CompiledMethod* OptimizingCompiler::TryCompile(const DexFile::CodeItem* code_ite
     visualizer.DumpGraph(kLivenessPassName);
   }
 
-  std::vector<uint8_t> mapping_table;
-  codegen->BuildMappingTable(&mapping_table);
   std::vector<uint8_t> vmap_table;
   codegen->BuildVMapTable(&vmap_table);
   std::vector<uint8_t> gc_map;
@@ -173,9 +182,9 @@ CompiledMethod* OptimizingCompiler::TryCompile(const DexFile::CodeItem* code_ite
                             codegen->GetFrameSize(),
                             codegen->GetCoreSpillMask(),
                             0, /* FPR spill mask, unused */
-                            mapping_table,
-                            vmap_table,
-                            gc_map,
+                            AlignVectorSize(mapping_table),
+                            AlignVectorSize(vmap_table),
+                            AlignVectorSize(gc_map),
                             nullptr);
 }
 

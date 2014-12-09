@@ -150,6 +150,16 @@ class MANAGED ArtMethod FINAL : public Object {
     SetAccessFlags(GetAccessFlags() | kAccPreverified);
   }
 
+  bool IsOptimized(size_t pointer_size) SHARED_LOCKS_REQUIRED(Locks::mutator_lock_) {
+    // Temporary solution for detecting if a method has been optimized: the compiler
+    // does not create a GC map. Instead, the vmap table contains the stack map
+    // (as in stack_map.h).
+    return !IsNative()
+        && GetEntryPointFromQuickCompiledCodePtrSize(pointer_size) != nullptr
+        && GetQuickOatCodePointer(pointer_size) != nullptr
+        && GetNativeGcMap(pointer_size) == nullptr;
+  }
+
   bool IsPortableCompiled() SHARED_LOCKS_REQUIRED(Locks::mutator_lock_) {
     return kUsePortableCompiler && ((GetAccessFlags() & kAccPortableCompiled) != 0);
   }
