@@ -37,7 +37,7 @@ static void SigAltStack(stack_t* new_stack, stack_t* old_stack) {
 // stack size.
 // TODO: We shouldn't do logging (with locks) in signal handlers.
 static constexpr int kHostAltSigStackSize =
-    16 * KB < MINSIGSTKSZ ? MINSIGSTKSZ : 16 * KB;
+    32 * KB < MINSIGSTKSZ ? MINSIGSTKSZ : 32 * KB;
 
 void Thread::SetUpAlternateSignalStack() {
   // Create and set an alternate signal stack.
