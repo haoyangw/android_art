@@ -28,8 +28,8 @@ class Indenter : public std::streambuf {
  public:
   Indenter(std::streambuf* out, char text, size_t count)
       : indent_next_(true), out_sbuf_(out),
-	text_{text, text, text, text, text, text, text, text}, // NOLINT(whitespace/braces)
-	count_(count) {}
+        text_{text, text, text, text, text, text, text, text},  // NOLINT(whitespace/braces)
+        count_(count) {}
 
  private:
   std::streamsize xsputn(const char* s, std::streamsize n) OVERRIDE {
